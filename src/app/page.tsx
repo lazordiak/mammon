@@ -12,7 +12,9 @@ const metal = Metal_Mania({
 export default function Home() {
   return (
     <div className="w-screen h-screen flex items-center justify-center bg-black text-foreground">
-      <p className={`${metal.className} text-8xl demonic-text`}>MAMMON.exe</p>
+      <p className={`${metal.className} text-6xl lg:text-8xl demonic-text`}>
+        MAMMON.exe
+      </p>
       <style jsx>{`
         .demonic-text {
           background: linear-gradient(to bottom, lightgrey, #ff4500);
