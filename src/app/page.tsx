@@ -27,20 +27,20 @@ export default function Home() {
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
           text-shadow: 0 0 6px rgba(255, 69, 0, 0.6),
-            0 0 12px rgba(255, 69, 0, 0.4);
+            0 0 50px rgba(255, 69, 0, 0.4);
         }
         .demonic-anim {
-          animation: glow-animation 1.5s infinite alternate;
+          animation: glow-animation 2s infinite alternate;
         }
 
         @keyframes glow-animation {
           0% {
-            text-shadow: 0 0 3px rgba(255, 69, 0, 0.6),
-              0 0 12px rgba(255, 69, 0, 0.4);
+            text-shadow: 0 0 6px rgba(255, 69, 0, 0.6),
+              0 0 50px rgba(255, 69, 0, 0.4);
           }
           100% {
             text-shadow: 0 0 6px rgba(255, 69, 0, 0.8),
-              0 0 14px rgba(255, 69, 0, 0.6);
+              0 0 40px rgba(255, 69, 0, 0.6);
           }
         }
       `}</style>
