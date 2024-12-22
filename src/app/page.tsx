@@ -12,9 +12,15 @@ const metal = Metal_Mania({
 export default function Home() {
   return (
     <div className="w-screen h-screen flex items-center justify-center bg-black text-foreground">
-      <p className={`${metal.className} text-6xl lg:text-8xl demonic-text`}>
-        MAMMON.exe
-      </p>
+      <div
+        className={`${metal.className} flex flex-col items-center justify-center gap-6`}
+      >
+        <p className={`text-6xl lg:text-8xl demonic-text demonic-anim`}>
+          MAMMON.exe
+        </p>
+        <p className="demonic-text text-4xl">STATE THINE DESIRE</p>
+        <textarea className="w-64"></textarea>
+      </div>
       <style jsx>{`
         .demonic-text {
           background: linear-gradient(to bottom, lightgrey, #ff4500);
@@ -22,6 +28,8 @@ export default function Home() {
           -webkit-text-fill-color: transparent;
           text-shadow: 0 0 6px rgba(255, 69, 0, 0.6),
             0 0 12px rgba(255, 69, 0, 0.4);
+        }
+        .demonic-anim {
           animation: glow-animation 1.5s infinite alternate;
         }
 
