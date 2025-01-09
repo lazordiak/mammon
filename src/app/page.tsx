@@ -2,6 +2,8 @@
 
 import { Metal_Mania } from "next/font/google";
 import Image from "next/image";
+import { useEffect } from "react";
+import { createOpenAiInstance, messageChatGpt } from "./utils/gptUtils";
 
 const metal = Metal_Mania({
   variable: "--font-metal-mania",
@@ -10,12 +12,24 @@ const metal = Metal_Mania({
 });
 
 export default function Home() {
+  useEffect(() => {
+    createOpenAiInstance();
+  }, []);
+
+  const handleMessage = () => {
+    console.log("hehe, here we go");
+    messageChatGpt();
+  };
+
   return (
     <div className="w-screen h-screen flex items-center justify-center bg-black text-foreground">
       <div
         className={`${metal.className} flex flex-col items-center justify-center gap-6`}
       >
-        <p className={`text-6xl lg:text-8xl demonic-text demonic-anim`}>
+        <p
+          onClick={handleMessage}
+          className={`text-6xl lg:text-8xl demonic-text demonic-anim`}
+        >
           MAMMON.exe
         </p>
         <p className="demonic-text text-4xl">STATE THINE DESIRE</p>
