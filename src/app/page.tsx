@@ -13,7 +13,7 @@ const metal = Metal_Mania({
 
 export default function Home() {
   useEffect(() => {
-    createOpenAiInstance();
+    //createOpenAiInstance();
   }, []);
 
   const handleMessage = () => {
