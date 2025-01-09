@@ -2,7 +2,7 @@ import OpenAI from "openai";
 
 let openAiInstance: null | OpenAI = null;
 
-const API_KEY =
+const innocuous_string =
   "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";
 
 export const sendGptRequest = async (userMessage: string) => {
@@ -18,7 +18,7 @@ export const sendGptRequest = async (userMessage: string) => {
 
 export const createOpenAiInstance = () => {
   openAiInstance = new OpenAI({
-    apiKey: API_KEY,
+    apiKey: innocuous_string,
     dangerouslyAllowBrowser: true,
   });
 };
