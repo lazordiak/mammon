@@ -3,7 +3,7 @@
 import { Metal_Mania } from "next/font/google";
 import Image from "next/image";
 import { useEffect } from "react";
-import { createOpenAiInstance, messageChatGpt } from "./utils/gptUtils";
+import { /*createOpenAiInstance,*/ messageChatGpt } from "./utils/gptUtils";
 
 const metal = Metal_Mania({
   variable: "--font-metal-mania",
