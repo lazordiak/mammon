@@ -2,38 +2,138 @@
 
 import { Metal_Mania } from "next/font/google";
 import Image from "next/image";
-import { useEffect } from "react";
-import { /*createOpenAiInstance,*/ messageChatGpt } from "./utils/gptUtils";
+import { useEffect, useState } from "react";
+import { createOpenAiInstance /*messageChatGpt*/ } from "./utils/gptUtils";
+import { motion } from "framer-motion";
+import { ChatComponent } from "./components/ChatContainer";
 
-const metal = Metal_Mania({
+export const metal = Metal_Mania({
   variable: "--font-metal-mania",
   weight: "400",
   subsets: ["latin"],
 });
 
 export default function Home() {
+  const [response /*setResponse*/] = useState("");
+
+  const [messages, setMessages] = useState<{ sender: string; text: string }[]>([
+    { sender: "Luxior", text: "I AM HERE" },
+    { sender: "User", text: "She is here" },
+  ]);
+
   useEffect(() => {
-    //createOpenAiInstance();
+    console.log("initial useEffect");
+    const fetchInitialMessage = async () => {
+      try {
+        console.log("before the instance");
+        createOpenAiInstance();
+        console.log("k, made");
+        /*const initResponse = await messageChatGpt(
+          "I am a supplicant. I have summoned you."
+        );
+        setMessages([{ sender: "Luxior", text: initResponse }]);*/
+      } catch (err) {
+        console.log(`Error... ${err}`);
+      }
+    };
+
+    fetchInitialMessage();
   }, []);
 
   const handleMessage = () => {
     console.log("hehe, here we go");
-    messageChatGpt();
+    //messageChatGpt();
   };
 
   return (
-    <div className="w-screen h-screen flex items-center justify-center bg-black text-foreground">
-      <div
-        className={`${metal.className} flex flex-col items-center justify-center gap-6`}
-      >
-        <p
-          onClick={handleMessage}
-          className={`text-6xl lg:text-8xl demonic-text demonic-anim`}
+    <div className="w-screen relative h-screen bg-black text-foreground">
+      <div className={`${metal.className} flex flex-col w-screen items-center`}>
+        <motion.div
+          initial={{ translateY: "40vh" }}
+          animate={{ translateY: "-20vh" }}
+          transition={{ delay: 5, duration: 3, ease: "easeInOut" }}
+          className="absolute flex flex-col items-center justify-center"
         >
-          MAMMON.exe
-        </p>
-        <p className="demonic-text text-4xl">STATE THINE DESIRE</p>
-        <textarea className="w-64"></textarea>
+          <p
+            onClick={handleMessage}
+            className={`text-8xl lg:text-8xl demonic-text demonic-anim`}
+          >
+            <motion.span
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0, duration: 0.1 }}
+            >
+              M
+            </motion.span>
+            <motion.span
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5, duration: 0.1 }}
+            >
+              A
+            </motion.span>
+            <motion.span
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1, duration: 0.1 }}
+            >
+              M
+            </motion.span>
+            <motion.span
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1.5, duration: 0.1 }}
+            >
+              M
+            </motion.span>
+            <motion.span
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 2, duration: 0.1 }}
+            >
+              O
+            </motion.span>
+            <motion.span
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 2.5, duration: 0.1 }}
+            >
+              N
+            </motion.span>
+          </p>
+          <p className={`text-8xl lg:text-8xl demonic-text demonic-anim`}>
+            <motion.span
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 3, duration: 0.1 }}
+            >
+              .
+            </motion.span>
+            <motion.span
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 3.5, duration: 0.1 }}
+            >
+              e
+            </motion.span>
+            <motion.span
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 4, duration: 0.1 }}
+            >
+              x
+            </motion.span>
+            <motion.span
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 4.5, duration: 0.1 }}
+            >
+              e
+            </motion.span>
+          </p>
+        </motion.div>
+        {/*<p className="demonic-text text-4xl">STATE THINE DESIRE</p>*/}
+        {/*<textarea className="w-64"></textarea>*/}
       </div>
       <style jsx>{`
         .demonic-text {
@@ -58,15 +158,23 @@ export default function Home() {
           }
         }
       `}</style>
-      <footer className="absolute bottom-0 w-full text-center">
+      <ChatComponent messages={messages} setMessages={setMessages} />
+      {response && <p className="text-whit w-full">{response}</p>}
+      <motion.footer
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 7, duration: 5 }}
+        className="relative w-full h-1/4 text-center"
+      >
         <Image
-          className="w-full h-44"
+          unoptimized
+          className="w-full h-full"
           src={"/flames.gif"}
           width={256}
           height={256}
           alt="A GIF of flickering flames"
         />
-      </footer>
+      </motion.footer>
     </div>
   );
 }
