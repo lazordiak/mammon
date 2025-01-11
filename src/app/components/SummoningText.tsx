@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { FC } from "react";
-import { metal } from "../page";
+import { metal } from "../utils/gptUtils";
 
 interface SummoningTextProps {
   entity: string;

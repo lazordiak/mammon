@@ -1,17 +1,13 @@
 "use client";
 
-import { Metal_Mania } from "next/font/google";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { createOpenAiInstance /*messageChatGpt*/ } from "./utils/gptUtils";
+import {
+  createOpenAiInstance /*messageChatGpt*/,
+  metal,
+} from "./utils/gptUtils";
 import { motion } from "framer-motion";
 import { ChatComponent } from "./components/ChatContainer";
-
-export const metal = Metal_Mania({
-  variable: "--font-metal-mania",
-  weight: "400",
-  subsets: ["latin"],
-});
 
 export default function Home() {
   const [response /*setResponse*/] = useState("");

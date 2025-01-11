@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { FC, useState, useRef, useEffect } from "react";
-import { metal } from "../page";
 import { SummoningText } from "./SummoningText";
+import { metal } from "../utils/gptUtils";
 
 interface ChatComponentProps {
   messages: { sender: string; text: string }[];
