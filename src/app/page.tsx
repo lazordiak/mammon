@@ -46,7 +46,7 @@ export default function Home() {
       <div className={`${metal.className} flex flex-col w-screen items-center`}>
         <motion.div
           initial={{ translateY: "40vh" }}
-          animate={{ translateY: "-20vh" }}
+          animate={{ translateY: "-40vh" }}
           transition={{ delay: 5, duration: 3, ease: "easeInOut" }}
           className="absolute flex flex-col items-center justify-center"
         >
