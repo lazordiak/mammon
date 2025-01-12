@@ -18,11 +18,12 @@ wss.on("connection", (ws) => {
     console.log("here are the clients");
     console.log(clients.size);
 
+    const messageStr = message.toString();
     // Broadcast the message to all clients (including Unreal Engine)
     for (const client of clients) {
       console.log(client.OPEN === client.readyState);
       if (client !== ws && client.readyState === WebSocket.OPEN) {
-        client.send(message);
+        client.send(messageStr);
       }
     }
   });
