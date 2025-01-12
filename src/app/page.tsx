@@ -36,11 +36,6 @@ export default function Home() {
     fetchInitialMessage();
   }, []);
 
-  const handleMessage = () => {
-    console.log("hehe, here we go");
-    //messageChatGpt();
-  };
-
   return (
     <div className="w-screen relative h-screen bg-black text-foreground">
       <div className={`${metal.className} flex flex-col w-screen items-center`}>
@@ -50,10 +45,7 @@ export default function Home() {
           transition={{ delay: 5, duration: 6, ease: "easeInOut" }}
           className="absolute flex flex-col items-center justify-center"
         >
-          <p
-            onClick={handleMessage}
-            className={`text-8xl lg:text-8xl demonic-text demonic-anim`}
-          >
+          <p className={`text-8xl lg:text-8xl demonic-text demonic-anim`}>
             <motion.span
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}

@@ -16,11 +16,11 @@ wss.on("connection", (ws) => {
     console.log(`Received: ${message}`);
 
     // Broadcast the message to all clients (including Unreal Engine)
-    /*for (const client of clients) {
+    for (const client of clients) {
       if (client !== ws && client.readyState === WebSocket.OPEN) {
         client.send(message);
       }
-    }*/
+    }
   });
 
   // Remove client on disconnect

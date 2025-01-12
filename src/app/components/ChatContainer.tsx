@@ -15,6 +15,40 @@ export const ChatComponent: FC<ChatComponentProps> = ({
   const [input, setInput] = useState("");
   const [animFinished, setAnimFinished] = useState(false);
   const chatContainerRef = useRef<HTMLDivElement>(null);
+  const [websocketResponses, setWebsocketResponses] = useState<string[]>([]);
+  const [websocket, setWebsocket] = useState<WebSocket | null>(null);
+
+  console.log(websocketResponses);
+
+  useEffect(() => {
+    const ws = new WebSocket("https://mammon.onrender.com");
+
+    setWebsocket(ws);
+
+    ws.onopen = () => {
+      console.log("Connected to WebSocket server");
+      ws.send("Hello from the web app!");
+    };
+
+    //does the web app care abt anythng from the web sockets? mb not.
+    ws.onmessage = (event) => {
+      console.log(`Message received: ${event.data}`);
+      setWebsocketResponses((prev) => [...prev, event.data]);
+    };
+
+    ws.onclose = () => {
+      console.log("Disconnected from WebSocket server");
+    };
+
+    ws.onerror = (error) => {
+      console.error("WebSocket error:", error);
+    };
+
+    // Clean up on unmount
+    return () => {
+      ws.close();
+    };
+  }, []);
 
   // Scroll to the bottom of the chat whenever a new message is added
   useEffect(() => {
@@ -34,6 +68,18 @@ export const ChatComponent: FC<ChatComponentProps> = ({
 
     // Clear input
     setInput("");
+
+    //Send to websocket
+    if (websocket) {
+      websocket.send(input);
+    } else {
+      console.log("No websocket??");
+    }
+
+    /*
+    THIS IS WHERE WE MESSAGE CHATGPT 
+    messageChatGpt();
+    */
 
     // Simulate delay for ChatGPT response
     setTimeout(() => {
