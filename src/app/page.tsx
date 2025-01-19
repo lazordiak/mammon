@@ -4,17 +4,21 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import {
   createOpenAiInstance /*messageChatGpt*/,
+  messageChatGpt,
   metal,
 } from "./utils/gptUtils";
 import { motion } from "framer-motion";
 import { ChatComponent } from "./components/ChatContainer";
+import { useSearchParams } from "next/navigation";
 
 export default function Home() {
-  const [response /*setResponse*/] = useState("");
+  const [response /*setResponse*/] = useState<string>("");
+  const [god, setGod] = useState<string>("");
+  const searchParams = useSearchParams();
 
   const [messages, setMessages] = useState<{ sender: string; text: string }[]>([
-    { sender: "Luxior", text: "I AM HERE" },
-    { sender: "User", text: "She is here" },
+    /*{ sender: "Luxior", text: "I AM HERE" },
+    { sender: "User", text: "She is here" },*/
   ]);
 
   useEffect(() => {
@@ -22,19 +26,29 @@ export default function Home() {
     const fetchInitialMessage = async () => {
       try {
         console.log("before the instance");
-        createOpenAiInstance();
-        console.log("k, made");
-        /*const initResponse = await messageChatGpt(
-          "I am a supplicant. I have summoned you."
-        );
-        setMessages([{ sender: "Luxior", text: initResponse }]);*/
+
+        const god = searchParams.get("god");
+
+        console.log("the god is...", god);
+
+        setGod(god || "Luxior");
+
+        if (god) {
+          createOpenAiInstance();
+          console.log("k, made");
+          const initResponse = await messageChatGpt(
+            "I am a supplicant. I have summoned you.",
+            god || "Luxior"
+          );
+          setMessages([{ sender: "Luxior", text: initResponse }]);
+        }
       } catch (err) {
         console.log(`Error... ${err}`);
       }
     };
 
     fetchInitialMessage();
-  }, []);
+  }, [searchParams]);
 
   return (
     <div className="w-screen relative h-screen bg-black text-foreground">
@@ -146,7 +160,7 @@ export default function Home() {
           }
         }
       `}</style>
-      <ChatComponent messages={messages} setMessages={setMessages} />
+      <ChatComponent god={god} messages={messages} setMessages={setMessages} />
       {response && <p className="text-whit w-full">{response}</p>}
       <motion.footer
         initial={{ opacity: 0 }}

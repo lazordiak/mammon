@@ -1,14 +1,16 @@
 import { motion } from "framer-motion";
 import { FC, useState, useRef, useEffect } from "react";
 import { SummoningText } from "./SummoningText";
-import { metal } from "../utils/gptUtils";
+import { messageChatGpt, metal } from "../utils/gptUtils";
 
 interface ChatComponentProps {
   messages: { sender: string; text: string }[];
+  god: string;
   setMessages: (messages: { sender: string; text: string }[]) => void;
 }
 
 export const ChatComponent: FC<ChatComponentProps> = ({
+  god,
   messages,
   setMessages,
 }) => {
@@ -76,16 +78,16 @@ export const ChatComponent: FC<ChatComponentProps> = ({
       console.log("No websocket??");
     }
 
-    /*
-    THIS IS WHERE WE MESSAGE CHATGPT 
-    messageChatGpt();
-    */
+    // THIS IS WHERE WE MESSAGE CHATGPT
+    const response = await messageChatGpt(input, god);
+
+    setMessages([...newMessages, { sender: "ChatGPT", text: response }]);
 
     // Simulate delay for ChatGPT response
-    setTimeout(() => {
+    /*setTimeout(() => {
       const response = `This is ChatGPT's response to: "${input}"`;
       setMessages([...newMessages, { sender: "ChatGPT", text: response }]);
-    }, 3000); // 1-second delay for simulation
+    }, 3000); // 1-second delay for simulation*/
   };
 
   return (
@@ -113,14 +115,18 @@ export const ChatComponent: FC<ChatComponentProps> = ({
               animate={{ opacity: 1 }}
               transition={{ delay: 0.5, duration: 1 }}
               exit={{ opacity: 0 }}
-              className={`p-2 rounded-md ${
-                message.sender === "User"
-                  ? "bg-blue-100 ml-8 text-blue-800 self-end"
-                  : "bg-gray-100 mr-8 text-gray-800 self-start"
-              }`}
+              className="flex w-full"
             >
-              <strong>{message.sender}: </strong>
-              {message.text}
+              <div
+                className={`p-2 rounded-md break-words inline-block max-w-[75%] ${
+                  message.sender === "User"
+                    ? "bg-blue-100 ml-auto text-blue-800"
+                    : "bg-gray-100 mr-auto text-gray-800"
+                }`}
+              >
+                <strong>{message.sender}: </strong>
+                {message.text}
+              </div>
             </motion.div>
           ))}
       </div>
