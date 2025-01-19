@@ -7,53 +7,19 @@ interface ChatComponentProps {
   messages: { role: string; content: string }[];
   god: string;
   setMessages: (messages: { role: string; content: string }[]) => void;
+  ws: WebSocket | null;
 }
 
 export const ChatComponent: FC<ChatComponentProps> = ({
   god,
   messages,
   setMessages,
+  ws,
 }) => {
   const [input, setInput] = useState("");
   const [animFinished, setAnimFinished] = useState(false);
   const chatContainerRef = useRef<HTMLDivElement>(null);
-  const [websocketResponses, setWebsocketResponses] = useState<string[]>([]);
-  const [websocket, setWebsocket] = useState<WebSocket | null>(null);
   const [convoState, setConvoState] = useState<number>(2);
-
-  console.log(websocketResponses);
-
-  //This is happening over and over again -- I assume chatcontainer is being re-rendered
-  // so fix that lol
-  useEffect(() => {
-    const ws = new WebSocket("https://mammon.onrender.com");
-
-    setWebsocket(ws);
-
-    ws.onopen = () => {
-      console.log("Connected to WebSocket server");
-      ws.send("Hello from the web app!");
-    };
-
-    //does the web app care abt anythng from the web sockets? mb not.
-    ws.onmessage = (event) => {
-      console.log(`Message received: ${event.data}`);
-      setWebsocketResponses((prev) => [...prev, event.data]);
-    };
-
-    ws.onclose = () => {
-      console.log("Disconnected from WebSocket server");
-    };
-
-    ws.onerror = (error) => {
-      console.error("WebSocket error:", error);
-    };
-
-    // Clean up on unmount
-    return () => {
-      ws.close();
-    };
-  }, []);
 
   // Scroll to the bottom of the chat whenever a new message is added
   useEffect(() => {
@@ -77,8 +43,8 @@ export const ChatComponent: FC<ChatComponentProps> = ({
     setInput("");
 
     //Send to websocket
-    if (websocket) {
-      websocket.send(input);
+    if (ws) {
+      ws.send(input);
     } else {
       console.log("No websocket??");
     }

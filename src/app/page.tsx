@@ -15,10 +15,44 @@ export default function Home() {
   const [response /*setResponse*/] = useState<string>("");
   const [god, setGod] = useState<string>("");
   const searchParams = useSearchParams();
+  //const [websocketResponses, setWebsocketResponses] = useState<string[]>([]);
+  const [websocket, setWebsocket] = useState<WebSocket | null>(null);
 
   const [messages, setMessages] = useState<{ role: string; content: string }[]>(
     []
   );
+
+  //This is happening over and over again -- I assume chatcontainer is being re-rendered
+  // so fix that lol
+  useEffect(() => {
+    const ws = new WebSocket("https://mammon.onrender.com");
+
+    setWebsocket(ws);
+
+    ws.onopen = () => {
+      console.log("Connected to WebSocket server");
+      ws.send("Hello from the web app!");
+    };
+
+    //does the web app care abt anythng from the web sockets? mb not.
+    ws.onmessage = (event) => {
+      console.log(`Message received: ${event.data}`);
+      //setWebsocketResponses((prev) => [...prev, event.data]);
+    };
+
+    ws.onclose = () => {
+      console.log("Disconnected from WebSocket server");
+    };
+
+    ws.onerror = (error) => {
+      console.error("WebSocket error:", error);
+    };
+
+    // Clean up on unmount
+    return () => {
+      ws.close();
+    };
+  }, []);
 
   useEffect(() => {
     console.log("initial useEffect");
@@ -32,7 +66,7 @@ export default function Home() {
 
         setGod(god ? god : "Luxior");
 
-        if (god) {
+        if (god && websocket) {
           createOpenAiInstance();
           console.log("k, made");
           const initResponse = await messageChatGpt(
@@ -42,6 +76,7 @@ export default function Home() {
             []
           );
           setMessages([{ role: "system", content: initResponse }]);
+          websocket.send(`Load ${god}`);
         }
       } catch (err) {
         console.log(`Error... ${err}`);
@@ -49,7 +84,7 @@ export default function Home() {
     };
 
     fetchInitialMessage();
-  }, [searchParams]);
+  }, [searchParams, websocket]);
 
   return (
     <div className="w-screen relative h-screen bg-black text-foreground">
@@ -161,7 +196,12 @@ export default function Home() {
           }
         }
       `}</style>
-      <ChatComponent god={god} messages={messages} setMessages={setMessages} />
+      <ChatComponent
+        ws={websocket}
+        god={god}
+        messages={messages}
+        setMessages={setMessages}
+      />
       {response && <p className="text-whit w-full">{response}</p>}
       <motion.footer
         initial={{ opacity: 0 }}
