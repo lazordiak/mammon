@@ -16,10 +16,9 @@ export default function Home() {
   const [god, setGod] = useState<string>("");
   const searchParams = useSearchParams();
 
-  const [messages, setMessages] = useState<{ sender: string; text: string }[]>([
-    /*{ sender: "Luxior", text: "I AM HERE" },
-    { sender: "User", text: "She is here" },*/
-  ]);
+  const [messages, setMessages] = useState<{ role: string; content: string }[]>(
+    []
+  );
 
   useEffect(() => {
     console.log("initial useEffect");
@@ -31,16 +30,18 @@ export default function Home() {
 
         console.log("the god is...", god);
 
-        setGod(god || "Luxior");
+        setGod(god ? god : "Luxior");
 
         if (god) {
           createOpenAiInstance();
           console.log("k, made");
           const initResponse = await messageChatGpt(
             "I am a supplicant. I have summoned you.",
-            god || "Luxior"
+            god ? god : "Luxior",
+            1,
+            []
           );
-          setMessages([{ sender: "Luxior", text: initResponse }]);
+          setMessages([{ role: "system", content: initResponse }]);
         }
       } catch (err) {
         console.log(`Error... ${err}`);

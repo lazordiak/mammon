@@ -4,9 +4,9 @@ import { SummoningText } from "./SummoningText";
 import { messageChatGpt, metal } from "../utils/gptUtils";
 
 interface ChatComponentProps {
-  messages: { sender: string; text: string }[];
+  messages: { role: string; content: string }[];
   god: string;
-  setMessages: (messages: { sender: string; text: string }[]) => void;
+  setMessages: (messages: { role: string; content: string }[]) => void;
 }
 
 export const ChatComponent: FC<ChatComponentProps> = ({
@@ -19,9 +19,12 @@ export const ChatComponent: FC<ChatComponentProps> = ({
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const [websocketResponses, setWebsocketResponses] = useState<string[]>([]);
   const [websocket, setWebsocket] = useState<WebSocket | null>(null);
+  const [convoState, setConvoState] = useState<number>(2);
 
   console.log(websocketResponses);
 
+  //This is happening over and over again -- I assume chatcontainer is being re-rendered
+  // so fix that lol
   useEffect(() => {
     const ws = new WebSocket("https://mammon.onrender.com");
 
@@ -62,10 +65,12 @@ export const ChatComponent: FC<ChatComponentProps> = ({
 
   // Simulate a response from ChatGPT
   const sendMessage = async () => {
+    if (convoState > 4) return;
+
     if (!input.trim()) return;
 
     // Add user's message
-    const newMessages = [...messages, { sender: "User", text: input }];
+    const newMessages = [...messages, { role: "user", content: input }];
     setMessages(newMessages);
 
     // Clear input
@@ -79,9 +84,11 @@ export const ChatComponent: FC<ChatComponentProps> = ({
     }
 
     // THIS IS WHERE WE MESSAGE CHATGPT
-    const response = await messageChatGpt(input, god);
+    const response = await messageChatGpt(input, god, convoState, messages);
 
-    setMessages([...newMessages, { sender: "ChatGPT", text: response }]);
+    setConvoState((prev) => prev + 1);
+
+    setMessages([...newMessages, { role: "system", content: response }]);
 
     // Simulate delay for ChatGPT response
     /*setTimeout(() => {
@@ -105,7 +112,7 @@ export const ChatComponent: FC<ChatComponentProps> = ({
         <SummoningText
           animFinished={animFinished}
           setAnimFinished={setAnimFinished}
-          entity="Luxior"
+          entity={god.toUpperCase()}
         />
         {animFinished &&
           messages.map((message, index) => (
@@ -119,13 +126,15 @@ export const ChatComponent: FC<ChatComponentProps> = ({
             >
               <div
                 className={`p-2 rounded-md break-words inline-block max-w-[75%] ${
-                  message.sender === "User"
+                  message.role === "user"
                     ? "bg-blue-100 ml-auto text-blue-800"
                     : "bg-gray-100 mr-auto text-gray-800"
                 }`}
               >
-                <strong>{message.sender}: </strong>
-                {message.text}
+                <strong>
+                  {message.role === "user" ? "Supplicant" : god.toUpperCase()}:{" "}
+                </strong>
+                {message.content}
               </div>
             </motion.div>
           ))}
