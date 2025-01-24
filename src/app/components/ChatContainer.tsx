@@ -1,7 +1,13 @@
 import { motion } from "framer-motion";
 import { FC, useState, useRef, useEffect } from "react";
 import { SummoningText } from "./SummoningText";
-import { messageChatGpt, metal } from "../utils/gptUtils";
+import {
+  charm,
+  messageChatGpt,
+  metal,
+  oswald,
+  perMarker,
+} from "../utils/gptUtils";
 
 interface ChatComponentProps {
   messages: { role: string; content: string }[];
@@ -20,6 +26,8 @@ export const ChatComponent: FC<ChatComponentProps> = ({
   const [animFinished, setAnimFinished] = useState(false);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const [convoState, setConvoState] = useState<number>(2);
+
+  console.log("the god is", god);
 
   // Scroll to the bottom of the chat whenever a new message is added
   useEffect(() => {
@@ -61,6 +69,12 @@ export const ChatComponent: FC<ChatComponentProps> = ({
       const response = `This is ChatGPT's response to: "${input}"`;
       setMessages([...newMessages, { sender: "ChatGPT", text: response }]);
     }, 3000); // 1-second delay for simulation*/
+
+    if (convoState === 4 && ws) {
+      ws.send("CLOSING SOCKET");
+      console.log("closing the websocket, god is done talking");
+      ws.close();
+    }
   };
 
   return (
@@ -95,9 +109,17 @@ export const ChatComponent: FC<ChatComponentProps> = ({
                   message.role === "user"
                     ? "bg-blue-100 ml-auto text-blue-800"
                     : "bg-gray-100 mr-auto text-gray-800"
+                } ${
+                  god === "Luxior" || god === "luxior"
+                    ? `${charm.className}`
+                    : god === "Gratis" || god === "gratis"
+                    ? `${perMarker.className}`
+                    : message.role === "user"
+                    ? ""
+                    : `${oswald.className}`
                 }`}
               >
-                <strong>
+                <strong className={`${metal.className}`}>
                   {message.role === "user" ? "Supplicant" : god.toUpperCase()}:{" "}
                 </strong>
                 {message.content}
