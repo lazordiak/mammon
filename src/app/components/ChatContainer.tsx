@@ -5,6 +5,7 @@ import {
   charm,
   messageChatGpt,
   metal,
+  openSans,
   oswald,
   perMarker,
 } from "../utils/gptUtils";
@@ -115,7 +116,7 @@ export const ChatComponent: FC<ChatComponentProps> = ({
                     : god === "Gratis" || god === "gratis"
                     ? `${perMarker.className}`
                     : message.role === "user"
-                    ? ""
+                    ? `${openSans.className}`
                     : `${oswald.className}`
                 }`}
               >
@@ -139,7 +140,7 @@ export const ChatComponent: FC<ChatComponentProps> = ({
         />
         <button
           onClick={sendMessage}
-          className={`mt-2 ${metal.className} text-2xl text-transparent bg-clip-text bg-gradient-to-b from-gray-300 to-orange-600 border-2 border-amber-700 animate-glow px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition`}
+          className={`mt-2 ${metal.className} text-2xl text-black bg-clip-text bg-gradient-to-b from-gray-300 to-orange-600 border-2 border-amber-700 animate-glow px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition`}
         >
           TRANSMIT PRAYER
         </button>
