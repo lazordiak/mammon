@@ -5,8 +5,8 @@ import {
   charm,
   messageChatGpt,
   metal,
+  newRocker,
   openSans,
-  oswald,
   perMarker,
 } from "../utils/gptUtils";
 
@@ -23,12 +23,11 @@ export const ChatComponent: FC<ChatComponentProps> = ({
   setMessages,
   ws,
 }) => {
+  const convoEndState = 4;
   const [input, setInput] = useState("");
   const [animFinished, setAnimFinished] = useState(false);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const [convoState, setConvoState] = useState<number>(2);
-
-  console.log("the god is", god);
 
   // Scroll to the bottom of the chat whenever a new message is added
   useEffect(() => {
@@ -40,7 +39,7 @@ export const ChatComponent: FC<ChatComponentProps> = ({
 
   // Simulate a response from ChatGPT
   const sendMessage = async () => {
-    if (convoState > 4) return;
+    if (convoState > convoEndState) return;
 
     if (!input.trim()) return;
 
@@ -71,7 +70,7 @@ export const ChatComponent: FC<ChatComponentProps> = ({
       setMessages([...newMessages, { sender: "ChatGPT", text: response }]);
     }, 3000); // 1-second delay for simulation*/
 
-    if (convoState === 4 && ws) {
+    if (convoState === convoEndState && ws) {
       ws.send("CLOSING SOCKET");
       console.log("closing the websocket, god is done talking");
       ws.close();
@@ -108,16 +107,20 @@ export const ChatComponent: FC<ChatComponentProps> = ({
               <div
                 className={`p-2 rounded-md break-words inline-block max-w-[75%] ${
                   message.role === "user"
-                    ? "bg-blue-100 ml-auto text-blue-800"
-                    : "bg-gray-100 mr-auto text-gray-800"
+                    ? "bg-white ml-auto text-gray-800"
+                    : god === "Gratis" || god === "gratis"
+                    ? "bg-amber-100 mr-auto text-gray-800"
+                    : god === "Luxior" || god === "luxior"
+                    ? "bg-teal-100 mr-auto text-gray-800"
+                    : "bg-gray-400 mr-auto text-gray-800"
                 } ${
-                  god === "Luxior" || god === "luxior"
-                    ? `${charm.className}`
+                  message.role === "user"
+                    ? `${openSans.className}`
                     : god === "Gratis" || god === "gratis"
                     ? `${perMarker.className}`
-                    : message.role === "user"
-                    ? `${openSans.className}`
-                    : `${oswald.className}`
+                    : god === "Luxior" || god === "luxior"
+                    ? `${charm.className}`
+                    : `${newRocker.className}`
                 }`}
               >
                 <strong className={`${metal.className}`}>
@@ -127,23 +130,48 @@ export const ChatComponent: FC<ChatComponentProps> = ({
               </div>
             </motion.div>
           ))}
+        {convoState > convoEndState && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 3, duration: 2 }}
+            className={`${metal.className} text-2xl py-8 text-center text-transparent bg-clip-text bg-gradient-to-b from-gray-300 to-orange-600 animate-glow`}
+          >
+            {god} has left the chat. Your divine communion has ended.
+          </motion.div>
+        )}
       </div>
 
       {/* Input box */}
       <div className="mt-4 flex flex-col items-center ">
-        <textarea
-          className="w-full border border-gray-300 rounded-md p-2 resize-none"
+        <motion.textarea
+          animate={{
+            height: convoState > convoEndState ? 0 : "auto",
+            padding: convoState > convoEndState ? 0 : "0.5rem",
+            border: convoState > convoEndState ? "none" : "1px solid #ccc",
+          }}
+          transition={{ duration: 3, delay: 3 }}
+          className="w-full border text-black rounded-md resize-none"
+          disabled={convoState > convoEndState}
           rows={2}
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="COMMUNE WITH THINE GOD"
         />
-        <button
+        <motion.button
           onClick={sendMessage}
-          className={`mt-2 ${metal.className} text-2xl text-black bg-clip-text bg-gradient-to-b from-gray-300 to-orange-600 border-2 border-amber-700 animate-glow px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition`}
+          disabled={convoState > convoEndState}
+          className={`mt-2 ${
+            metal.className
+          } text-2xl text-transparent bg-clip-text border-2 px-4 py-2 rounded-md transition 
+    ${
+      convoState > convoEndState
+        ? "bg-gray-400 text-gray-300 border-gray-500 cursor-not-allowed"
+        : "bg-gradient-to-b from-gray-300 to-orange-600 border-amber-700 hover:bg-blue-600"
+    }`}
         >
           TRANSMIT PRAYER
-        </button>
+        </motion.button>
       </div>
     </motion.div>
   );
