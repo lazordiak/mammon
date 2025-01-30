@@ -28,6 +28,7 @@ export const ChatComponent: FC<ChatComponentProps> = ({
   const [animFinished, setAnimFinished] = useState(false);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const [convoState, setConvoState] = useState<number>(2);
+  const [loading, setLoading] = useState(false);
 
   // Scroll to the bottom of the chat whenever a new message is added
   useEffect(() => {
@@ -50,6 +51,8 @@ export const ChatComponent: FC<ChatComponentProps> = ({
     // Clear input
     setInput("");
 
+    setLoading(true);
+
     //Send to websocket
     if (ws) {
       ws.send(input);
@@ -63,6 +66,8 @@ export const ChatComponent: FC<ChatComponentProps> = ({
     setConvoState((prev) => prev + 1);
 
     setMessages([...newMessages, { role: "system", content: response }]);
+
+    setLoading(false);
 
     // Simulate delay for ChatGPT response
     /*setTimeout(() => {
@@ -130,6 +135,22 @@ export const ChatComponent: FC<ChatComponentProps> = ({
               </div>
             </motion.div>
           ))}
+        {loading && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{
+              repeat: Infinity,
+              repeatType: "reverse",
+              duration: 1,
+            }}
+            className="flex items-center space-x-2"
+          >
+            <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce"></div>
+            <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce delay-100"></div>
+            <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce delay-200"></div>
+          </motion.div>
+        )}
         {convoState > convoEndState && (
           <motion.div
             initial={{ opacity: 0 }}
