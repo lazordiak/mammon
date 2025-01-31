@@ -23,13 +23,14 @@ wss.on("connection", (ws) => {
     console.log("here are the clients");
     console.log(clients.size);
 
+    const messageStr = message.toString();
+
     // Forward print command to the Local Print Server
     if (messageStr.startsWith("PRINT:")) {
       console.log("Forwarding print command...");
       printServer.send(messageStr); // Send directly to local printer server
     }
 
-    const messageStr = message.toString();
     // Broadcast the message to all clients (including Unreal Engine)
     for (const client of clients) {
       console.log(client.OPEN === client.readyState);
