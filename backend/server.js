@@ -10,14 +10,20 @@ const clients = new Set();
 // Ngrok WebSocket URL (Replace with your actual ngrok TCP address)
 const NGROK_URL = "ws://7.tcp.ngrok.io:20823";
 let printServer = null;
+let isReconnecting = false; // Flag to track reconnect attempts
 
 // Function to connect to the print server (with retry)
 function connectToPrintServer() {
+  if (isReconnecting) return; // Prevent reconnection if already in progress
+
   console.log("Attempting to connect to the print server...");
   printServer = new WebSocket(NGROK_URL);
 
+  isReconnecting = true; // Set flag to true while reconnecting
+
   printServer.on("open", () => {
     console.log("Connected to the print server!");
+    isReconnecting = false; // Reset flag when connected
   });
 
   printServer.on("error", (err) => {
