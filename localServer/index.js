@@ -45,29 +45,29 @@ wss.on("connection", (ws) => {
 
     switch (message) {
       case "Luxior good":
-        console.log("Luxior good");
+        console.log("PRINT: Luxior good");
         god = "LUXIOR";
         break;
       case "Haffof good":
-        console.log("Haffof good");
+        console.log("PRINT: Haffof good");
         god = "HAFFOF";
         break;
       case "Gratis good":
-        console.log("Gratis good");
+        console.log("PRINT: Gratis good");
         god = "GRATIS";
         break;
       case "Luxior bad":
-        console.log("Luxior bad");
+        console.log("PRINT: Luxior bad");
         god = "LUXIOR";
         isWorthy = "UNWORTHY";
         break;
       case "Haffof bad":
-        console.log("Haffof bad");
+        console.log("PRINT: Haffof bad");
         god = "HAFFOF";
         isWorthy = "UNWORTHY";
         break;
       case "Gratis bad":
-        console.log("Gratis bad");
+        console.log("PRINT: Gratis bad");
         god = "GRATIS";
         isWorthy = "UNWORTHY";
         break;
@@ -92,6 +92,8 @@ function printReceipt(god) {
       console.error("Printer error:", err);
       return;
     }
+
+    console.log("the god is: ", god);
 
     try {
       let textToDisplay =

@@ -23,7 +23,7 @@ export const ChatComponent: FC<ChatComponentProps> = ({
   setMessages,
   ws,
 }) => {
-  const convoEndState = 4;
+  const convoEndState = 5;
   const [input, setInput] = useState("");
   const [animFinished, setAnimFinished] = useState(false);
   const chatContainerRef = useRef<HTMLDivElement>(null);
