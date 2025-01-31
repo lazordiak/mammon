@@ -57,6 +57,7 @@ export const ChatComponent: FC<ChatComponentProps> = ({
     //Send to websocket
     if (ws) {
       ws.send(input);
+      console.log("sent to websocket!");
     } else {
       console.log("No websocket??");
     }
@@ -77,11 +78,14 @@ export const ChatComponent: FC<ChatComponentProps> = ({
     }, 3000); // 1-second delay for simulation*/
 
     if (convoState === convoEndState && ws) {
+      console.log("we are about to send the final thing");
+      console.log(messages[messages.length - 1]);
       if (
-        messages[length - 1].content
+        messages[messages.length - 1].content
           .toLowerCase()
           .includes("you have been judged worthy")
       ) {
+        console.log("worthy!");
         switch (god.toLowerCase()) {
           case "luxior":
             ws.send("PRINT: Luxior good");
@@ -96,6 +100,7 @@ export const ChatComponent: FC<ChatComponentProps> = ({
             ws.send("PRINT: God has left the chat");
         }
       } else {
+        console.log("unworthy!");
         switch (god.toLowerCase()) {
           case "luxior":
             ws.send("PRINT: Luxior bad");

@@ -1,16 +1,38 @@
-// eslint-disable-next-line
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const WebSocket = require("ws");
 
 // Create a WebSocket server
 const wss = new WebSocket.Server({ port: 10000 });
 
-// Replace with your computer's IP address
-const printServer = new WebSocket("ws://7.tcp.ngrok.io:20823");
-
-console.log("Print server: ", printServer.OPEN);
-
 // Store connected clients
 const clients = new Set();
+
+// Ngrok WebSocket URL (Replace with your actual ngrok TCP address)
+const NGROK_URL = "ws://7.tcp.ngrok.io:20823";
+let printServer = null;
+
+// Function to connect to the print server (with retry)
+function connectToPrintServer() {
+  console.log("Attempting to connect to the print server...");
+  printServer = new WebSocket(NGROK_URL);
+
+  printServer.on("open", () => {
+    console.log("Connected to the print server!");
+  });
+
+  printServer.on("error", (err) => {
+    console.error("Print server connection error:", err);
+    setTimeout(connectToPrintServer, 5000); // Retry after 5 seconds
+  });
+
+  printServer.on("close", () => {
+    console.warn("Print server connection closed. Reconnecting...");
+    setTimeout(connectToPrintServer, 5000); // Retry after 5 seconds
+  });
+}
+
+// Start the connection process
+connectToPrintServer();
 
 wss.on("connection", (ws) => {
   clients.add(ws);
@@ -20,7 +42,7 @@ wss.on("connection", (ws) => {
   ws.on("message", (message) => {
     console.log(`Received: ${message}`);
 
-    console.log("here are the clients");
+    console.log("Here are the clients:");
     console.log(clients.size);
 
     const messageStr = message.toString();
@@ -28,7 +50,12 @@ wss.on("connection", (ws) => {
     // Forward print command to the Local Print Server
     if (messageStr.startsWith("PRINT:")) {
       console.log("Forwarding print command...");
-      printServer.send(messageStr); // Send directly to local printer server
+      if (printServer && printServer.readyState === WebSocket.OPEN) {
+        printServer.send(messageStr);
+      } else {
+        console.error("Print server is not connected. Retrying...");
+        connectToPrintServer();
+      }
     }
 
     // Broadcast the message to all clients (including Unreal Engine)
