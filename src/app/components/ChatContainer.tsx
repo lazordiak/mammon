@@ -122,7 +122,7 @@ export const ChatComponent: FC<ChatComponentProps> = ({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ delay: 7, duration: 5 }}
-      className="w-full px-4 pt-4 h-4/5 flex flex-col"
+      className="w-full px-4 pt-4 h-5/6 flex flex-col"
     >
       {/* Chat container */}
       <div

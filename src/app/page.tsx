@@ -259,7 +259,7 @@ export default function Home() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 7, duration: 5 }}
-        className="relative w-full h-1/5 text-center"
+        className="relative w-full h-1/6 text-center"
       >
         <Image
           unoptimized

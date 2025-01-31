@@ -5,7 +5,9 @@ const WebSocket = require("ws");
 const wss = new WebSocket.Server({ port: 10000 });
 
 // Replace with your computer's IP address
-//const printServer = new WebSocket("ws://YOUR_COMPUTER_IP:8081");
+const printServer = new WebSocket("ws://7.tcp.ngrok.io:20823");
+
+console.log("Print server: ", printServer.OPEN);
 
 // Store connected clients
 const clients = new Set();
