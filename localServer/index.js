@@ -43,30 +43,32 @@ wss.on("connection", (ws) => {
   ws.on("message", (message) => {
     console.log(`Received: ${message}`);
 
-    switch (message) {
-      case "Luxior good":
+    const stringMsg = message.toString();
+
+    switch (stringMsg) {
+      case "PRINT: Luxior good":
         console.log("PRINT: Luxior good");
         god = "LUXIOR";
         break;
-      case "Haffof good":
+      case "PRINT: Haffof good":
         console.log("PRINT: Haffof good");
         god = "HAFFOF";
         break;
-      case "Gratis good":
+      case "PRINT: Gratis good":
         console.log("PRINT: Gratis good");
         god = "GRATIS";
         break;
-      case "Luxior bad":
+      case "PRNT: Luxior bad":
         console.log("PRINT: Luxior bad");
         god = "LUXIOR";
         isWorthy = "UNWORTHY";
         break;
-      case "Haffof bad":
+      case "PRINT: Haffof bad":
         console.log("PRINT: Haffof bad");
         god = "HAFFOF";
         isWorthy = "UNWORTHY";
         break;
-      case "Gratis bad":
+      case "PRINT: Gratis bad":
         console.log("PRINT: Gratis bad");
         god = "GRATIS";
         isWorthy = "UNWORTHY";

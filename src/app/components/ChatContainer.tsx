@@ -79,13 +79,13 @@ export const ChatComponent: FC<ChatComponentProps> = ({
 
     if (convoState === convoEndState && ws) {
       console.log("we are about to send the final thing");
-      console.log(messages[messages.length - 1]);
-      if (
-        messages[messages.length - 1].content
-          .toLowerCase()
-          .includes("you have been judged worthy")
-      ) {
+      console.log(
+        response.toLowerCase().includes("you have been judged worthy")
+      );
+      console.log(response);
+      if (response.toLowerCase().includes("you have been judged worthy")) {
         console.log("worthy!");
+        console.log(god);
         switch (god.toLowerCase()) {
           case "luxior":
             ws.send("PRINT: Luxior good");
