@@ -4,6 +4,9 @@ const WebSocket = require("ws");
 // Create a WebSocket server
 const wss = new WebSocket.Server({ port: 10000 });
 
+// Replace with your computer's IP address
+//const printServer = new WebSocket("ws://YOUR_COMPUTER_IP:8081");
+
 // Store connected clients
 const clients = new Set();
 
@@ -17,6 +20,12 @@ wss.on("connection", (ws) => {
 
     console.log("here are the clients");
     console.log(clients.size);
+
+    // Forward print command to the Local Print Server
+    if (messageStr.startsWith("PRINT:")) {
+      console.log("Forwarding print command...");
+      printServer.send(messageStr); // Send directly to local printer server
+    }
 
     const messageStr = message.toString();
     // Broadcast the message to all clients (including Unreal Engine)

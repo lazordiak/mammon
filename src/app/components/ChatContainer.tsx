@@ -40,6 +40,7 @@ export const ChatComponent: FC<ChatComponentProps> = ({
 
   // Simulate a response from ChatGPT
   const sendMessage = async () => {
+    console.log("initial convo state: ", convoState);
     if (convoState > convoEndState) return;
 
     if (!input.trim()) return;
@@ -76,6 +77,40 @@ export const ChatComponent: FC<ChatComponentProps> = ({
     }, 3000); // 1-second delay for simulation*/
 
     if (convoState === convoEndState && ws) {
+      if (
+        messages[length - 1].content
+          .toLowerCase()
+          .includes("you have been judged worthy")
+      ) {
+        switch (god.toLowerCase()) {
+          case "luxior":
+            ws.send("PRINT: Luxior good");
+            break;
+          case "gratis":
+            ws.send("PRINT: Gratis good");
+            break;
+          case "haffof":
+            ws.send("PRINT: Haffof good");
+            break;
+          default:
+            ws.send("PRINT: God has left the chat");
+        }
+      } else {
+        switch (god.toLowerCase()) {
+          case "luxior":
+            ws.send("PRINT: Luxior bad");
+            break;
+          case "gratis":
+            ws.send("PRINT: Gratis bad");
+            break;
+          case "haffof":
+            ws.send("PRINT: Haffof bad");
+            break;
+          default:
+            ws.send("God has left the chat");
+        }
+      }
+      console.log("closing socket now!!!!");
       ws.send("CLOSING SOCKET");
       console.log("closing the websocket, god is done talking");
       ws.close();
@@ -87,12 +122,12 @@ export const ChatComponent: FC<ChatComponentProps> = ({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ delay: 7, duration: 5 }}
-      className="w-full px-8 pt-8 h-3/4 flex flex-col"
+      className="w-full px-4 pt-4 h-4/5 flex flex-col"
     >
       {/* Chat container */}
       <div
         ref={chatContainerRef}
-        className="flex-1 overflow-y-auto border border-gray-300 rounded-md p-4 space-y-4"
+        className="flex-1 overflow-y-auto border border-gray-300 rounded-md p-2 space-y-4"
       >
         <SummoningText
           animFinished={animFinished}
@@ -139,18 +174,27 @@ export const ChatComponent: FC<ChatComponentProps> = ({
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{
-              repeat: Infinity,
-              repeatType: "reverse",
-              duration: 1,
-            }}
-            className="flex items-center space-x-2"
+            transition={{ duration: 0.3 }}
+            className="flex items-center space-x-1"
           >
-            <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce"></div>
-            <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce delay-100"></div>
-            <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce delay-200"></div>
+            {[0, 1, 2].map((i) => (
+              <motion.span
+                key={i}
+                className="w-2 h-2 bg-gray-500 rounded-full"
+                animate={{
+                  y: [0, -4, 0], // Moves up and down
+                }}
+                transition={{
+                  duration: 0.6,
+                  repeat: Infinity,
+                  repeatType: "reverse",
+                  delay: i * 0.2, // Staggers the dots
+                }}
+              />
+            ))}
           </motion.div>
         )}
+
         {convoState > convoEndState && (
           <motion.div
             initial={{ opacity: 0 }}
@@ -164,7 +208,7 @@ export const ChatComponent: FC<ChatComponentProps> = ({
       </div>
 
       {/* Input box */}
-      <div className="mt-4 flex flex-col items-center ">
+      <div className="mt-2 flex flex-col items-center ">
         <motion.textarea
           animate={{
             height: convoState > convoEndState ? 0 : "auto",
