@@ -71,12 +71,9 @@ export const messageChatGpt = async (
       dynamicPrompt = `Respond to their request in character and question them about their consumption habits and devotion to your commandments. Your goal is to use this information to determine a task they should perform in exchange for your blessing. Do not actually assign them this task yet.`;
       break;
     case 3:
-      dynamicPrompt = `Based on their response, ask them a follow-up question that will help you determine what task they should perform in exchange for your blessing. Do not actually assign them this task yet.`;
-      break;
-    case 4:
       dynamicPrompt = `Tell them that based on what their response and what you've learned about them, you will assign them a task that aligns with your commandments in exchange for your blessing. Then assign them this task. Be specific about what they must do. The action should be related to the god's attributes. At the end, ask them explicitly if they will agree to undertake this task.`;
       break;
-    case 5:
+    case 4:
       dynamicPrompt = `End the conversation with a blessing, if the subject agreed to the task, or a disdainful farewell, if they did not agree to the task. If the subject did agree to the task, you must include the phrase 'You have been judged worthy' in your response. If they did not agree to the task, you must include the phrase 'You have been found wanting' in your response.`;
       break;
     default:
