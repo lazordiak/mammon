@@ -49,10 +49,11 @@ export const messageChatGpt = async (
   conversationState: number,
   messages: { role: string; content: string }[]
 ): Promise<string> => {
+  const normalizedGod = (god || "").toLowerCase();
   const promptToSelect =
-    god === "luxior"
+    normalizedGod === "luxior"
       ? luxiorInitPrompt
-      : god === "gratis"
+      : normalizedGod === "gratis"
       ? gratisInitPrompt
       : haffofInitPrompt;
 
@@ -65,16 +66,16 @@ export const messageChatGpt = async (
   switch (conversationState) {
     case 1:
       dynamicPrompt =
-        "Introduce yourself and ask the participant what they seek. Respond in 75 words or left.";
+        "Introduce yourself and ask the participant what they seek. Respond in 75 words or less.";
       break;
     case 2:
-      dynamicPrompt = `Respond to their request in character and question them about their consumption habits and devotion to your commandments. Your goal is to use this information to determine a task they should perform in exchange for your blessing. Do not actually assign them this task yet. Respond in 75 words or left.`;
+      dynamicPrompt = `Respond to their request in character and question them about their consumption habits and devotion to your commandments. Your goal is to use this information to determine a task they should perform in exchange for your blessing. Do not actually assign them this task yet. Respond in 75 words or less.`;
       break;
     case 3:
-      dynamicPrompt = `Tell them that based on what their response and what you've learned about them, you will assign them a task that aligns with your commandments in exchange for your blessing. Then assign them this task. Be specific about what they must do. The action should be related to the god's attributes. At the end, ask them explicitly if they will agree to undertake this task. Respond in 75 words or left.`;
+      dynamicPrompt = `Tell them that based on what their response and what you've learned about them, you will assign them a task that aligns with your commandments in exchange for your blessing. Then assign them this task. Be specific about what they must do. The action should be related to the god's attributes. At the end, ask them explicitly if they will agree to undertake this task. Respond in 75 words or less.`;
       break;
     case 4:
-      dynamicPrompt = `End the conversation with a blessing, if the subject agreed to the task, or a disdainful farewell, if they did not agree to the task. If the subject did agree to the task, you must include the phrase 'You have been judged worthy' in your response. If they did not agree to the task, you must include the phrase 'You have been found wanting' in your response. Respond in 75 words or left.`;
+      dynamicPrompt = `End the conversation with a blessing, if the subject agreed to the task, or a disdainful farewell, if they did not agree to the task. If the subject did agree to the task, you must include the phrase 'You have been judged worthy' in your response. If they did not agree to the task, you must include the phrase 'You have been found wanting' in your response. Respond in 75 words or less.`;
       break;
     default:
       dynamicPrompt = "The conversation has ended, and you will not respond.";
@@ -85,8 +86,8 @@ export const messageChatGpt = async (
   const response = await openAiInstance!.chat.completions.create({
     model: "gpt-4o-mini",
     messages: [
-      ...messages,
       { role: "system", content: `${promptToSelect} ${dynamicPrompt}` },
+      ...messages,
       {
         role: "user",
         content: userMessage,

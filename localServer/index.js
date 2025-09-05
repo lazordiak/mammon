@@ -49,16 +49,19 @@ wss.on("connection", (ws) => {
       case "PRINT: Luxior good":
         console.log("PRINT: Luxior good");
         god = "LUXIOR";
+        isWorthy = "WORTHY";
         break;
       case "PRINT: Haffof good":
         console.log("PRINT: Haffof good");
         god = "HAFFOF";
+        isWorthy = "WORTHY";
         break;
       case "PRINT: Gratis good":
         console.log("PRINT: Gratis good");
         god = "GRATIS";
+        isWorthy = "WORTHY";
         break;
-      case "PRNT: Luxior bad":
+      case "PRINT: Luxior bad":
         console.log("PRINT: Luxior bad");
         god = "LUXIOR";
         isWorthy = "UNWORTHY";

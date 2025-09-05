@@ -23,11 +23,13 @@ export default function Home() {
     []
   );
   const [isAuthorized, setIsAuthorized] = useState(false);
+  const [isAltar, setIsAltar] = useState(false);
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const key = urlParams.get("key");
     const god = searchParams.get("god");
+    const altarParam = urlParams.get("altar");
 
     setGod(god ? god : "Luxior");
 
@@ -38,12 +40,14 @@ export default function Home() {
       const storedKey = localStorage.getItem("auth_key");
       setIsAuthorized(storedKey === SECRET_KEY);
     }
+
+    setIsAltar(altarParam === "true" || altarParam === "1");
   }, [searchParams]);
 
   //This is happening over and over again -- I assume chatcontainer is being re-rendered
   // so fix that lol
   useEffect(() => {
-    if (isAuthorized) {
+    if (isAuthorized && isAltar) {
       const ws = new WebSocket("https://mammon.onrender.com");
 
       setWebsocket(ws);
@@ -72,13 +76,13 @@ export default function Home() {
         ws.close();
       };
     }
-  }, [isAuthorized]);
+  }, [isAuthorized, isAltar]);
 
   useEffect(() => {
     console.log("initial useEffect");
     const fetchInitialMessage = async () => {
       try {
-        if (god && websocket) {
+        if (god && websocket && isAltar) {
           createOpenAiInstance();
           const initResponse = await messageChatGpt(
             "I am a supplicant. I have summoned you.",
@@ -86,7 +90,7 @@ export default function Home() {
             1,
             []
           );
-          setMessages([{ role: "system", content: initResponse }]);
+          setMessages([{ role: "assistant", content: initResponse }]);
           websocket.send(`Load ${god}`);
         }
       } catch (err) {
@@ -95,7 +99,7 @@ export default function Home() {
     };
 
     fetchInitialMessage();
-  }, [god, websocket]);
+  }, [god, websocket, isAltar]);
 
   if (!god) {
     return (
@@ -253,8 +257,9 @@ export default function Home() {
         god={god}
         messages={messages}
         setMessages={setMessages}
+        isAltar={isAltar}
       />
-      {response && <p className="text-whit w-full">{response}</p>}
+      {response && <p className="text-white w-full">{response}</p>}
       <motion.footer
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}

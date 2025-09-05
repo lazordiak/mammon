@@ -15,6 +15,7 @@ interface ChatComponentProps {
   god: string;
   setMessages: (messages: { role: string; content: string }[]) => void;
   ws: WebSocket | null;
+  isAltar?: boolean;
 }
 
 export const ChatComponent: FC<ChatComponentProps> = ({
@@ -22,6 +23,7 @@ export const ChatComponent: FC<ChatComponentProps> = ({
   messages,
   setMessages,
   ws,
+  isAltar = false,
 }) => {
   const convoEndState = 4;
   const [input, setInput] = useState("");
@@ -29,6 +31,7 @@ export const ChatComponent: FC<ChatComponentProps> = ({
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const [convoState, setConvoState] = useState<number>(2);
   const [loading, setLoading] = useState(false);
+  const godLc = god.toLowerCase();
 
   // Scroll to the bottom of the chat whenever a new message is added
   useEffect(() => {
@@ -55,7 +58,7 @@ export const ChatComponent: FC<ChatComponentProps> = ({
     setLoading(true);
 
     //Send to websocket
-    if (ws) {
+    if (ws && isAltar) {
       ws.send(input);
       console.log("sent to websocket!");
     } else {
@@ -67,7 +70,7 @@ export const ChatComponent: FC<ChatComponentProps> = ({
 
     setConvoState((prev) => prev + 1);
 
-    setMessages([...newMessages, { role: "system", content: response }]);
+    setMessages([...newMessages, { role: "assistant", content: response }]);
 
     setLoading(false);
 
@@ -77,7 +80,7 @@ export const ChatComponent: FC<ChatComponentProps> = ({
       setMessages([...newMessages, { sender: "ChatGPT", text: response }]);
     }, 3000); // 1-second delay for simulation*/
 
-    if (convoState === convoEndState && ws) {
+    if (convoState === convoEndState && ws && isAltar) {
       console.log("we are about to send the final thing");
       console.log(
         response.toLowerCase().includes("you have been judged worthy")
@@ -153,17 +156,17 @@ export const ChatComponent: FC<ChatComponentProps> = ({
                 className={`p-2 rounded-md break-words inline-block max-w-[75%] ${
                   message.role === "user"
                     ? "bg-white ml-auto text-gray-800"
-                    : god === "Gratis" || god === "gratis"
+                    : godLc === "gratis"
                     ? "bg-amber-100 mr-auto text-gray-800"
-                    : god === "Luxior" || god === "luxior"
+                    : godLc === "luxior"
                     ? "bg-teal-100 mr-auto text-gray-800"
                     : "bg-gray-400 mr-auto text-gray-800"
                 } ${
                   message.role === "user"
                     ? `${openSans.className}`
-                    : god === "Gratis" || god === "gratis"
+                    : godLc === "gratis"
                     ? `${perMarker.className}`
-                    : god === "Luxior" || god === "luxior"
+                    : godLc === "luxior"
                     ? `${charm.className}`
                     : `${newRocker.className}`
                 }`}
