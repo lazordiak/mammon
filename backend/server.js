@@ -8,7 +8,9 @@ const wss = new WebSocket.Server({ port: 10000 });
 const clients = new Set();
 
 // Ngrok WebSocket URL (Replace with your actual ngrok TCP address)
-const NGROK_URL = "ws://7.tcp.ngrok.io:20823";
+// Prefer env var; fall back to local print server for testing
+const NGROK_URL = process.env.NGROK_URL || "ws://localhost:8081";
+// const NGROK_URL = "ws://7.tcp.ngrok.io:20823";
 let printServer = null;
 let isReconnecting = false; // Flag to track reconnect attempts
 let attempt = 0; // reconnect backoff attempts
