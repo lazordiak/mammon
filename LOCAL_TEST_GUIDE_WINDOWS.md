@@ -125,6 +125,7 @@ npm install
 ### 5) Start the services (3 separate Command Prompt windows)
 
 Why: you’re starting three programs that talk to each other:
+
 - Printer service talks to the USB printer.
 - Backend forwards messages between the website and the printer service.
 - Website is what you open in the browser.
@@ -159,6 +160,7 @@ npm run dev
 Open the site in your browser: `http://localhost:3000/?key=gratis_is_good&altar=1&god=Luxior`
 
 What the special link does:
+
 - `key=gratis_is_good` unlocks the “altar” controls (required by the site’s code)
 - `altar=1` tells the page to connect to the backend
 - `god=Luxior` chooses the theme; you can also try `Gratis` or `Haffof`
