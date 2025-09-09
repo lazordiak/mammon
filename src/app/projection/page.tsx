@@ -13,7 +13,7 @@ export default function Projection() {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
-    const ws = new WebSocket("https://mammon.onrender.com");
+    const ws = new WebSocket("ws://localhost:10000");
 
     ws.onmessage = (event) => {
       const msg = String(event.data || "");

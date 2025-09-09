@@ -48,7 +48,7 @@ export default function Home() {
   // so fix that lol
   useEffect(() => {
     if (isAuthorized && isAltar) {
-      const ws = new WebSocket("https://mammon.onrender.com");
+      const ws = new WebSocket("ws://localhost:10000");
 
       setWebsocket(ws);
 
@@ -100,6 +100,27 @@ export default function Home() {
 
     fetchInitialMessage();
   }, [god, websocket, isAltar]);
+
+  // Ensure projection returns to idle if the altar tab/window closes mid-chat
+  useEffect(() => {
+    if (!isAltar || !websocket) return;
+
+    const handleUnload = () => {
+      try {
+        websocket.send("CLOSING SOCKET");
+      } catch {
+        // ignore
+      }
+    };
+
+    window.addEventListener("beforeunload", handleUnload);
+    window.addEventListener("pagehide", handleUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleUnload);
+      window.removeEventListener("pagehide", handleUnload);
+    };
+  }, [isAltar, websocket]);
 
   if (!god) {
     return (
