@@ -57,9 +57,9 @@ export const ChatComponent: FC<ChatComponentProps> = ({
 
     setLoading(true);
 
-    //Send to websocket
+    //Send to websocket (relay to projection)
     if (ws && isAltar) {
-      ws.send(input);
+      ws.send(`MSG:USER:${input}`);
       console.log("sent to websocket!");
     } else {
       console.log("No websocket??");
@@ -71,6 +71,15 @@ export const ChatComponent: FC<ChatComponentProps> = ({
     setConvoState((prev) => prev + 1);
 
     setMessages([...newMessages, { role: "assistant", content: response }]);
+
+    // Broadcast assistant reply to projection during altar sessions
+    if (ws && isAltar) {
+      try {
+        ws.send(`MSG:ASSISTANT:${response}`);
+      } catch (e) {
+        console.log("WS send assistant failed", e);
+      }
+    }
 
     setLoading(false);
 

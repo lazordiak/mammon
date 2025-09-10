@@ -15,14 +15,18 @@ const wss = new WebSocket.Server({ server });
 // Store connected clients
 const clients = new Set();
 
-// Ngrok WebSocket URL (Replace with your actual ngrok TCP address)
-const NGROK_URL = "ws://7.tcp.ngrok.io:20823";
+// Ngrok WebSocket URL (provided via Render environment variable)
+const NGROK_URL = process.env.NGROK_URL || "";
 let printServer = null;
 let isReconnecting = false; // Flag to track reconnect attempts
 let attempt = 0; // reconnect backoff attempts
 
 // Function to connect to the print server (with retry)
 function connectToPrintServer() {
+  if (!NGROK_URL) {
+    console.warn("NGROK_URL is not set. Skipping print server connection.");
+    return;
+  }
   if (isReconnecting) return; // Prevent reconnection if already in progress
 
   const baseDelayMs = 1000; // 1s
@@ -101,6 +105,8 @@ wss.on("connection", (ws) => {
     const isControl =
       messageStr.startsWith("Load ") ||
       messageStr.startsWith("PRINT:") ||
+      messageStr.startsWith("MSG:USER:") ||
+      messageStr.startsWith("MSG:ASSISTANT:") ||
       messageStr === "CLOSING SOCKET";
 
     if (isControl) {
