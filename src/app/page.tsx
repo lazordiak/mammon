@@ -48,7 +48,7 @@ export default function Home() {
   // so fix that lol
   useEffect(() => {
     if (isAuthorized && isAltar) {
-      const ws = new WebSocket("https://mammon.onrender.com");
+      const ws = new WebSocket("wss://mammon.onrender.com");
 
       setWebsocket(ws);
 

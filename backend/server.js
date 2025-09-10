@@ -1,8 +1,16 @@
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const WebSocket = require("ws");
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const http = require("http");
 
-// Create a WebSocket server
-const wss = new WebSocket.Server({ port: 10000 });
+// Create an HTTP server and attach a WebSocket server (required for Render WS upgrades)
+const server = http.createServer((req, res) => {
+  // Basic OK response for health checks
+  res.writeHead(200, { "Content-Type": "text/plain" });
+  res.end("OK");
+});
+
+const wss = new WebSocket.Server({ server });
 
 // Store connected clients
 const clients = new Set();
@@ -110,4 +118,7 @@ wss.on("connection", (ws) => {
   });
 });
 
-console.log("WebSocket server is running!");
+const PORT = process.env.PORT ? Number(process.env.PORT) : 10000;
+server.listen(PORT, () => {
+  console.log(`HTTP+WS server listening on ${PORT}`);
+});

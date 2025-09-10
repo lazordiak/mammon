@@ -49,6 +49,9 @@ export const messageChatGpt = async (
   conversationState: number,
   messages: { role: string; content: string }[]
 ): Promise<string> => {
+  if (!openAiInstance) {
+    createOpenAiInstance();
+  }
   const normalizedGod = (god || "").toLowerCase();
   const promptToSelect =
     normalizedGod === "luxior"
