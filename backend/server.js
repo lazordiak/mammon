@@ -74,6 +74,7 @@ connectToPrintServer();
 
 wss.on("connection", (ws) => {
   clients.add(ws);
+  console.log(`WS client connected. Total clients: ${clients.size}`);
   ws.send("Greetings to Unreal Engine!");
 
   // Handle incoming messages
@@ -113,8 +114,9 @@ wss.on("connection", (ws) => {
 
   // Remove client on disconnect
   ws.on("close", () => {
-    console.log("Client disconnected");
+    console.log("WS client disconnected");
     clients.delete(ws);
+    console.log(`Remaining clients: ${clients.size}`);
   });
 });
 

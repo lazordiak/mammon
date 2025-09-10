@@ -14,6 +14,7 @@ export default function Projection() {
 
   useEffect(() => {
     const ws = new WebSocket("wss://mammon.onrender.com");
+    ws.onopen = () => console.log("[projection] WS connected");
 
     ws.onmessage = (event) => {
       const msg = String(event.data || "");
@@ -29,6 +30,7 @@ export default function Projection() {
     };
 
     return () => {
+      console.log("[projection] WS closing");
       ws.close();
     };
   }, []);
