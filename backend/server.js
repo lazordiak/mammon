@@ -20,6 +20,8 @@ const NGROK_URL = process.env.NGROK_URL || "";
 let printServer = null;
 let isReconnecting = false; // Flag to track reconnect attempts
 let attempt = 0; // reconnect backoff attempts
+let consecutiveFailures = 0;
+let reconnectCooldownUntil = 0; // epoch ms; pause reconnects until this time
 
 // Function to connect to the print server (with retry)
 function connectToPrintServer() {
@@ -28,6 +30,13 @@ function connectToPrintServer() {
     return;
   }
   if (isReconnecting) return; // Prevent reconnection if already in progress
+
+  const now = Date.now();
+  if (reconnectCooldownUntil && now < reconnectCooldownUntil) {
+    const secs = Math.ceil((reconnectCooldownUntil - now) / 1000);
+    console.warn(`Print server reconnect cooling down. Retrying in ~${secs}s`);
+    return;
+  }
 
   const baseDelayMs = 1000; // 1s
   const maxDelayMs = 60000; // 60s cap
@@ -39,9 +48,12 @@ function connectToPrintServer() {
   if (attempt === 0) {
     console.log("Attempting to connect to the print server...");
   } else {
-    console.log(
-      `Reconnecting to print server (attempt ${attempt}) in ${nextDelay}ms...`
-    );
+    // Throttle log noise: log every 10th attempt
+    if (attempt % 10 === 0) {
+      console.log(
+        `Reconnecting to print server (attempt ${attempt}) in ${nextDelay}ms...`
+      );
+    }
   }
 
   isReconnecting = true; // Set flag to true while reconnecting
@@ -53,12 +65,23 @@ function connectToPrintServer() {
       console.log("Connected to the print server!");
       isReconnecting = false; // Reset flag when connected
       attempt = 0; // reset backoff
+      consecutiveFailures = 0;
+      reconnectCooldownUntil = 0;
     });
 
     printServer.on("error", (err) => {
       console.error("Print server connection error:", err);
       isReconnecting = false;
       attempt += 1;
+      consecutiveFailures += 1;
+      if (consecutiveFailures >= 20) {
+        // Back off hard for 15 minutes to prevent resource churn on free tiers
+        reconnectCooldownUntil = Date.now() + 15 * 60 * 1000;
+        console.warn(
+          "Too many print server failures; entering 15-minute cooldown."
+        );
+        return;
+      }
       connectToPrintServer();
     });
 
@@ -66,6 +89,14 @@ function connectToPrintServer() {
       console.warn("Print server connection closed. Reconnecting...");
       isReconnecting = false;
       attempt += 1;
+      consecutiveFailures += 1;
+      if (consecutiveFailures >= 20) {
+        reconnectCooldownUntil = Date.now() + 15 * 60 * 1000;
+        console.warn(
+          "Too many print server failures; entering 15-minute cooldown."
+        );
+        return;
+      }
       connectToPrintServer();
     });
   };
@@ -80,6 +111,22 @@ wss.on("connection", (ws) => {
   clients.add(ws);
   console.log(`WS client connected. Total clients: ${clients.size}`);
   ws.send("Greetings to Unreal Engine!");
+
+  // Heartbeat: ping every 30s, disconnect if no pong within 35s
+  ws.isAlive = true;
+  ws.on("pong", () => {
+    ws.isAlive = true;
+  });
+
+  const pingInterval = setInterval(() => {
+    if (ws.isAlive === false) {
+      console.log("WS client failed heartbeat, terminating");
+      ws.terminate();
+      return;
+    }
+    ws.isAlive = false;
+    ws.ping();
+  }, 30000);
 
   // Handle incoming messages
   ws.on("message", (message) => {
@@ -122,6 +169,7 @@ wss.on("connection", (ws) => {
   ws.on("close", () => {
     console.log("WS client disconnected");
     clients.delete(ws);
+    clearInterval(pingInterval);
     console.log(`Remaining clients: ${clients.size}`);
   });
 });
