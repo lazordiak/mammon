@@ -82,7 +82,7 @@ export default function Home() {
     console.log("initial useEffect");
     const fetchInitialMessage = async () => {
       try {
-        if (god && websocket && isAltar) {
+        if (god) {
           createOpenAiInstance();
           const initResponse = await messageChatGpt(
             "I am a supplicant. I have summoned you.",
@@ -91,7 +91,11 @@ export default function Home() {
             []
           );
           setMessages([{ role: "assistant", content: initResponse }]);
-          websocket.send(`Load ${god}`);
+
+          // Only altar sessions control projection and printing
+          if (websocket && isAltar) {
+            websocket.send(`Load ${god}`);
+          }
         }
       } catch (err) {
         console.log(`Error... ${err}`);
@@ -99,7 +103,7 @@ export default function Home() {
     };
 
     fetchInitialMessage();
-  }, [god, websocket, isAltar]);
+  }, [god, websocket]);
 
   if (!god) {
     return (
