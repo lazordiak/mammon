@@ -38,10 +38,12 @@ let isWorthy = `WORTHY`;
 let god = ``;
 
 wss.on("connection", (ws) => {
-  console.log("Client connected to WebSocket server.");
+  const timestamp = new Date().toISOString();
+  console.log(`[${timestamp}] 🖨️ Print client connected to WebSocket server.`);
 
   ws.on("message", (message) => {
-    console.log(`Received: ${message}`);
+    const timestamp = new Date().toISOString();
+    console.log(`[${timestamp}] 📨 Received print command: ${message}`);
 
     const stringMsg = message.toString();
 
@@ -81,13 +83,16 @@ wss.on("connection", (ws) => {
     }
 
     // Print only if the message contains a commandment
-    //if (message.startsWith("PRINT:")) {
-    //const commandmentText = message.replace("PRINT:", "").trim();
-    printReceipt(god);
-    //}
+    // Always print after processing the command
+    if (god) {
+      printReceipt(god);
+    }
   });
 
-  ws.on("close", () => console.log("Client disconnected."));
+  ws.on("close", () => {
+    const timestamp = new Date().toISOString();
+    console.log(`[${timestamp}] 🖨️ Print client disconnected.`);
+  });
 });
 
 // Function to print the receipt
@@ -98,7 +103,11 @@ function printReceipt(god) {
       return;
     }
 
-    console.log("the god is: ", god);
+    const timestamp = new Date().toISOString();
+    const printStartTime = Date.now();
+    console.log(
+      `[${timestamp}] 🎫 Starting print job for: ${god} (${isWorthy})`
+    );
 
     try {
       let textToDisplay =
@@ -114,6 +123,8 @@ function printReceipt(god) {
               Math.floor(Math.random() * gratisCommandment.length)
             ];
 
+      console.log(`[${timestamp}] 📜 Selected commandment: "${textToDisplay}"`);
+
       printer.align("ct").size(2, 2).text(`${god}`);
       printer.align("ct").size(2, 2).text(`JUDGES YOU`);
       printer.align("ct").size(2, 2).text(`${isWorthy}`).newLine();
@@ -125,11 +136,16 @@ function printReceipt(god) {
       printer.align("ct").size(2, 2).text("GO FORTH,");
       printer.align("ct").size(2, 2).text("CONSUME");
 
-      console.log("Receipt printed!");
+      const printDuration = Date.now() - printStartTime;
+      const endTimestamp = new Date().toISOString();
+      console.log(
+        `[${endTimestamp}] ✅ Receipt printed successfully! ${god} ${isWorthy} - "${textToDisplay}" (${printDuration}ms)`
+      );
       printer.cut();
       printer.close();
     } catch (err) {
-      console.log("Printing error: ", err);
+      const errorTimestamp = new Date().toISOString();
+      console.error(`[${errorTimestamp}] ❌ Printing error:`, err);
     }
   });
 }

@@ -81,7 +81,11 @@ connectToPrintServer();
 
 wss.on("connection", (ws) => {
   clients.add(ws);
-  console.log(`WS client connected. Total clients: ${clients.size}`);
+  const timestamp = new Date().toISOString();
+  const clientIP = ws._socket?.remoteAddress || "unknown";
+  console.log(
+    `[${timestamp}] 🔌 WS client connected from ${clientIP}. Total clients: ${clients.size}`
+  );
   ws.send("Greetings to Unreal Engine!");
 
   // Heartbeat: ping every 30s, disconnect if no pong within 35s
@@ -111,11 +115,17 @@ wss.on("connection", (ws) => {
 
     // Forward print command to the Local Print Server
     if (messageStr.startsWith("PRINT:")) {
-      console.log("Forwarding print command...");
+      const timestamp = new Date().toISOString();
+      console.log(`[${timestamp}] 📤 Forwarding print command: ${messageStr}`);
       if (printServer && printServer.readyState === WebSocket.OPEN) {
         printServer.send(messageStr);
+        console.log(
+          `[${timestamp}] ✅ PRINT forwarded successfully to printer`
+        );
       } else {
-        console.error("Print server is not connected. Retrying...");
+        console.error(
+          `[${timestamp}] ❌ PRINT forward failed - printer not connected`
+        );
         connectToPrintServer();
       }
     }
@@ -139,10 +149,11 @@ wss.on("connection", (ws) => {
 
   // Remove client on disconnect
   ws.on("close", () => {
-    console.log("WS client disconnected");
+    const timestamp = new Date().toISOString();
+    console.log(`[${timestamp}] 🔌 WS client disconnected from ${clientIP}`);
     clients.delete(ws);
     clearInterval(pingInterval);
-    console.log(`Remaining clients: ${clients.size}`);
+    console.log(`[${timestamp}] Remaining clients: ${clients.size}`);
   });
 });
 
