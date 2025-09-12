@@ -20,8 +20,6 @@ const NGROK_URL = process.env.NGROK_URL || "";
 let printServer = null;
 let isReconnecting = false; // Flag to track reconnect attempts
 let attempt = 0; // reconnect backoff attempts
-let consecutiveFailures = 0;
-let reconnectCooldownUntil = 0; // epoch ms; pause reconnects until this time
 
 // Function to connect to the print server (with retry)
 function connectToPrintServer() {
@@ -30,13 +28,6 @@ function connectToPrintServer() {
     return;
   }
   if (isReconnecting) return; // Prevent reconnection if already in progress
-
-  const now = Date.now();
-  if (reconnectCooldownUntil && now < reconnectCooldownUntil) {
-    const secs = Math.ceil((reconnectCooldownUntil - now) / 1000);
-    console.warn(`Print server reconnect cooling down. Retrying in ~${secs}s`);
-    return;
-  }
 
   const baseDelayMs = 1000; // 1s
   const maxDelayMs = 60000; // 60s cap
@@ -65,23 +56,12 @@ function connectToPrintServer() {
       console.log("Connected to the print server!");
       isReconnecting = false; // Reset flag when connected
       attempt = 0; // reset backoff
-      consecutiveFailures = 0;
-      reconnectCooldownUntil = 0;
     });
 
     printServer.on("error", (err) => {
       console.error("Print server connection error:", err);
       isReconnecting = false;
       attempt += 1;
-      consecutiveFailures += 1;
-      if (consecutiveFailures >= 20) {
-        // Back off hard for 15 minutes to prevent resource churn on free tiers
-        reconnectCooldownUntil = Date.now() + 15 * 60 * 1000;
-        console.warn(
-          "Too many print server failures; entering 15-minute cooldown."
-        );
-        return;
-      }
       connectToPrintServer();
     });
 
@@ -89,14 +69,6 @@ function connectToPrintServer() {
       console.warn("Print server connection closed. Reconnecting...");
       isReconnecting = false;
       attempt += 1;
-      consecutiveFailures += 1;
-      if (consecutiveFailures >= 20) {
-        reconnectCooldownUntil = Date.now() + 15 * 60 * 1000;
-        console.warn(
-          "Too many print server failures; entering 15-minute cooldown."
-        );
-        return;
-      }
       connectToPrintServer();
     });
   };
