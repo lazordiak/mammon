@@ -85,20 +85,40 @@ export const messageChatGpt = async (
       break;
   }
 
-  // @ts-expect-error: ChatGPT's fault, not mine
-  const response = await openAiInstance!.chat.completions.create({
-    model: "gpt-4o-mini",
-    messages: [
-      { role: "system", content: `${promptToSelect} ${dynamicPrompt}` },
-      ...messages,
-      {
-        role: "user",
-        content: userMessage,
-      },
-    ],
-  });
+  try {
+    // @ts-expect-error: ChatGPT's fault, not mine
+    const response = await openAiInstance!.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [
+        { role: "system", content: `${promptToSelect} ${dynamicPrompt}` },
+        ...messages,
+        {
+          role: "user",
+          content: userMessage,
+        },
+      ],
+    });
 
-  const responseMessage = response.choices[0].message.content;
+    const responseMessage = response.choices[0].message.content;
+    return responseMessage ? responseMessage : "";
+  } catch (error) {
+    console.error("OpenAI API error:", error);
 
-  return responseMessage ? responseMessage : "";
+    // Graceful fallback based on conversation state
+    switch (conversationState) {
+      case 1:
+        return `Greetings, supplicant. I am ${normalizedGod.toUpperCase()}, and thou hast summoned me. What dost thou seek from my divine presence?`;
+      case 2:
+        return `Tell me of thy devotion and consumption habits, that I may judge thy worthiness for a divine task.`;
+      case 3:
+        return `Based on thy words, I assign thee this task: demonstrate thy devotion through acts befitting my nature. Dost thou accept this sacred charge?`;
+      case 4:
+        return userMessage.toLowerCase().includes("yes") ||
+          userMessage.toLowerCase().includes("accept")
+          ? `You have been judged worthy. Go forth with my blessing and consume as I have commanded.`
+          : `You have been found wanting. Depart from my presence, unworthy one.`;
+      default:
+        return `The divine connection wavers. Try again, supplicant.`;
+    }
+  }
 };

@@ -31,6 +31,7 @@ export const ChatComponent: FC<ChatComponentProps> = ({
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const [convoState, setConvoState] = useState<number>(2);
   const [loading, setLoading] = useState(false);
+  const [countdown, setCountdown] = useState<number | null>(null);
   const godLc = god.toLowerCase();
 
   // Scroll to the bottom of the chat whenever a new message is added
@@ -131,6 +132,22 @@ export const ChatComponent: FC<ChatComponentProps> = ({
       ws.send("CLOSING SOCKET");
       console.log("closing the websocket, god is done talking");
       ws.close();
+
+      // Auto-close tab after divine judgment with visual countdown
+      setTimeout(() => {
+        setCountdown(10);
+        const countdownInterval = setInterval(() => {
+          setCountdown((prev) => {
+            if (prev === null || prev <= 1) {
+              clearInterval(countdownInterval);
+              console.log("Divine communion complete. Closing tab...");
+              window.close();
+              return null;
+            }
+            return prev - 1;
+          });
+        }, 1000);
+      }, 3000); // 3 second delay before countdown starts
     }
   };
 
@@ -220,6 +237,11 @@ export const ChatComponent: FC<ChatComponentProps> = ({
             className={`${metal.className} text-2xl py-8 text-center text-transparent bg-clip-text bg-gradient-to-b from-gray-300 to-orange-600 animate-glow`}
           >
             {god} has left the chat. Your divine communion has ended.
+            {countdown !== null && (
+              <div className="mt-4 text-xl text-orange-400">
+                Tab closing in {countdown} seconds...
+              </div>
+            )}
           </motion.div>
         )}
       </div>

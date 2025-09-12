@@ -96,3 +96,4 @@
 ### Optional local sanity test (doesn’t touch live)
 
 - Projection mock: open `https://mammon-exe.vercel.app/projection?mock=1` to preview left/right overlays and timing without affecting live behavior.
+

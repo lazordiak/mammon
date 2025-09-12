@@ -192,3 +192,4 @@ Tip: with a paid ngrok “reserved address,” the address never changes—you s
 - The site requires `?key=gratis_is_good` to enter.
 - Printing requires setting `NGROK_URL` on the backend to `ws://HOST:PORT` from ngrok, or to a reserved address.
 
+

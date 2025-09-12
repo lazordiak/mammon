@@ -50,40 +50,70 @@ export default function Projection() {
     const isMock = !!searchParams?.get("mock");
     if (isMock) return; // skip WS in mock mode
 
-    const ws = new WebSocket("wss://mammon.onrender.com");
-    ws.onopen = () => console.log("[projection] WS connected");
+    let ws: WebSocket | null = null;
+    let reconnectTimeout: NodeJS.Timeout | null = null;
+    let shouldReconnect = true;
 
-    ws.onmessage = (event) => {
-      const msg = String(event.data || "");
-      if (msg.startsWith("Load ")) {
-        const god = msg.replace("Load ", "").trim().toLowerCase();
-        if (GOD_TO_SRC[god]) {
-          setCurrentGod(god);
+    const connect = () => {
+      if (!shouldReconnect) return;
+
+      ws = new WebSocket("wss://mammon.onrender.com");
+
+      ws.onopen = () => {
+        console.log("[projection] WS connected");
+      };
+
+      ws.onmessage = (event) => {
+        const msg = String(event.data || "");
+        if (msg.startsWith("Load ")) {
+          const god = msg.replace("Load ", "").trim().toLowerCase();
+          if (GOD_TO_SRC[god]) {
+            setCurrentGod(god);
+          }
+        } else if (msg === "CLOSING SOCKET") {
+          // Return to idle when a chat ends
+          setCurrentGod(null);
+          setOverlayMessages([]);
+        } else if (
+          msg.startsWith("MSG:USER:") ||
+          msg.startsWith("MSG:ASSISTANT:")
+        ) {
+          const isAssistant = msg.startsWith("MSG:ASSISTANT:");
+          const text = msg
+            .replace(isAssistant ? "MSG:ASSISTANT:" : "MSG:USER:", "")
+            .trim();
+          const id = overlayIdRef.current++;
+          const role: "ASSISTANT" | "USER" = isAssistant ? "ASSISTANT" : "USER";
+          setOverlayMessages((prev) => {
+            const next = prev.filter((m) => m.role !== role);
+            const newMessages = [...next, { id, text, role }];
+            // Keep only last 20 messages total to prevent memory buildup
+            return newMessages.slice(-20);
+          });
         }
-      } else if (msg === "CLOSING SOCKET") {
-        // Return to idle when a chat ends
-        setCurrentGod(null);
-        setOverlayMessages([]);
-      } else if (
-        msg.startsWith("MSG:USER:") ||
-        msg.startsWith("MSG:ASSISTANT:")
-      ) {
-        const isAssistant = msg.startsWith("MSG:ASSISTANT:");
-        const text = msg
-          .replace(isAssistant ? "MSG:ASSISTANT:" : "MSG:USER:", "")
-          .trim();
-        const id = overlayIdRef.current++;
-        const role = isAssistant ? "ASSISTANT" : "USER";
-        setOverlayMessages((prev) => {
-          const next = prev.filter((m) => m.role !== role);
-          return [...next, { id, text, role }];
-        });
-      }
+      };
+
+      ws.onclose = () => {
+        console.log("[projection] WS disconnected, attempting reconnect in 3s");
+        if (shouldReconnect) {
+          reconnectTimeout = setTimeout(connect, 3000);
+        }
+      };
+
+      ws.onerror = (error) => {
+        console.error("[projection] WS error:", error);
+      };
     };
 
+    connect();
+
     return () => {
-      console.log("[projection] WS closing");
-      ws.close();
+      shouldReconnect = false;
+      if (reconnectTimeout) clearTimeout(reconnectTimeout);
+      if (ws) {
+        console.log("[projection] WS closing");
+        ws.close();
+      }
     };
   }, [searchParams]);
 
@@ -111,11 +141,14 @@ export default function Projection() {
     return () => clearInterval(id);
   }, [currentGod]);
 
-  // Mock mode: append ?mock=1 to /projection to simulate an active session with messages
+  // Mock mode: append ?mock=1/2/3 to /projection to simulate an active session with messages
   useEffect(() => {
-    const isMock = !!searchParams?.get("mock");
-    if (!isMock) return;
-    if (!currentGod) setCurrentGod("luxior");
+    const mockParam = searchParams?.get("mock");
+    if (!mockParam) return;
+
+    const mockGod =
+      mockParam === "2" ? "gratis" : mockParam === "3" ? "haffof" : "luxior";
+    setCurrentGod(mockGod);
 
     // Build ritual-sounding assistant (~75 words) and supplicant (10–30 words)
     const luxiorWords = [
@@ -294,9 +327,9 @@ export default function Projection() {
       )}
       {/* Overlay incoming altar messages during sessions (split columns) */}
       {currentGod && overlayMessages.length > 0 && (
-        <div className="pointer-events-none absolute inset-0 z-20 flex items-end justify-between px-8 pb-10 gap-8">
+        <div className="pointer-events-none absolute inset-0 z-20 flex items-end justify-between px-2 pb-10 gap-2">
           {/* Left column: ASSISTANT (god) */}
-          <div className="flex flex-col items-start w-2/5 pr-6 gap-3">
+          <div className="flex flex-col items-start w-2/5 pr-2 gap-3">
             {assistantMessages.map((m) => (
               <div
                 key={m.id}
@@ -306,7 +339,7 @@ export default function Projection() {
                     : currentGod === "luxior"
                     ? `self-start bg-teal-100/80 text-gray-800 ${charm.className}`
                     : `self-start bg-gray-400/80 text-gray-800 ${newRocker.className}`
-                } p-2 rounded-md break-words inline-block max-w-[60%] shadow`}
+                } p-2 rounded-md break-words inline-block max-w-[90%] shadow`}
               >
                 <strong className={`${metal.className}`}>
                   {(currentGod || "").toUpperCase()}:
@@ -316,11 +349,11 @@ export default function Projection() {
             ))}
           </div>
           {/* Right column: USER (supplicant) */}
-          <div className="flex flex-col items-end w-2/5 pl-6 gap-3">
+          <div className="flex flex-col items-end w-1/4 gap-3">
             {userMessages.map((m) => (
               <div
                 key={m.id}
-                className={`overlay-msg ${openSans.className} self-end bg-white/80 text-gray-800 p-2 rounded-md break-words inline-block max-w-[60%] shadow`}
+                className={`overlay-msg ${openSans.className} self-end bg-white/80 text-gray-800 p-2 rounded-md break-words inline-block max-w-[90%] shadow`}
               >
                 <strong className={`${metal.className}`}>Supplicant:</strong>{" "}
                 {m.text}
@@ -405,29 +438,19 @@ export default function Projection() {
           padding: 10px 14px;
           font-size: 1.5rem;
           line-height: 1.3;
-          animation: overlay-fade 6s ease-in-out forwards;
+          animation: overlay-fade-in 1s ease-out forwards;
           will-change: opacity, transform, filter;
         }
-        @keyframes overlay-fade {
+        @keyframes overlay-fade-in {
           0% {
             opacity: 0;
             transform: translateY(8px) scale(0.98);
             filter: blur(2px);
           }
-          12% {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-            filter: blur(0);
-          }
-          85% {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-            filter: blur(0);
-          }
           100% {
-            opacity: 0;
-            transform: translateY(4px) scale(1);
-            filter: blur(1px);
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            filter: blur(0);
           }
         }
       `}</style>
